@@ -17,6 +17,10 @@ var sorotan: MeshInstance3D
 var pitch := 0.0
 var terbang := false
 var idx_pilihan := 0
+# Masukan dari kontrol sentuh (diisi KontrolSentuh)
+var sentuh_gerak := Vector2.ZERO
+var sentuh_lompat := false
+var sentuh_turun := false
 
 func _ready() -> void:
 	var bentuk := CollisionShape3D.new()
@@ -47,11 +51,30 @@ func _ready() -> void:
 func pilihan() -> int:
 	return PILIHAN[idx_pilihan]
 
+func lihat(dx: float, dy: float) -> void:
+	rotate_y(-dx * 0.0024)
+	pitch = clampf(pitch - dy * 0.0024, -1.5, 1.5)
+	if kamera:
+		kamera.rotation.x = pitch
+
+func aksi_hancur() -> void:
+	_hancurkan()
+
+func aksi_pasang() -> void:
+	_pasang()
+
+func ganti_pilihan(i: int) -> void:
+	if i >= 0 and i < PILIHAN.size():
+		idx_pilihan = i
+		pilihan_berubah.emit(pilihan())
+
+func toggle_terbang() -> void:
+	terbang = not terbang
+	velocity.y = 0.0
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		rotate_y(-event.relative.x * 0.0024)
-		pitch = clampf(pitch - event.relative.y * 0.0024, -1.5, 1.5)
-		kamera.rotation.x = pitch
+		lihat(event.relative.x, event.relative.y)
 	if event is InputEventMouseButton and event.pressed:
 		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -69,8 +92,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			idx_pilihan = event.keycode - KEY_1
 			pilihan_berubah.emit(pilihan())
 		elif event.keycode == KEY_F:
-			terbang = not terbang
-			velocity.y = 0.0
+			toggle_terbang()
 
 func _target() -> Dictionary:
 	if dunia == null or kamera == null:
@@ -112,6 +134,9 @@ func _physics_process(delta: float) -> void:
 	var masukan := Vector2(
 		float(Input.is_physical_key_pressed(KEY_D)) - float(Input.is_physical_key_pressed(KEY_A)),
 		float(Input.is_physical_key_pressed(KEY_S)) - float(Input.is_physical_key_pressed(KEY_W)))
+	masukan += sentuh_gerak
+	if masukan.length() > 1.0:
+		masukan = masukan.normalized()
 	var arah := (transform.basis * Vector3(masukan.x, 0, masukan.y))
 	arah.y = 0
 	arah = arah.normalized() if masukan != Vector2.ZERO else Vector3.ZERO
@@ -120,10 +145,11 @@ func _physics_process(delta: float) -> void:
 	velocity.z = arah.z * cepat
 	if terbang:
 		var naik := float(Input.is_physical_key_pressed(KEY_SPACE)) - float(Input.is_physical_key_pressed(KEY_CTRL))
-		velocity.y = naik * cepat
+		naik += (1.0 if sentuh_lompat else 0.0) - (1.0 if sentuh_turun else 0.0)
+		velocity.y = clampf(naik, -1.0, 1.0) * cepat
 	else:
 		if not is_on_floor():
 			velocity.y -= GRAVITASI * delta
-		elif Input.is_physical_key_pressed(KEY_SPACE):
+		elif Input.is_physical_key_pressed(KEY_SPACE) or sentuh_lompat:
 			velocity.y = LOMPAT
 	move_and_slide()

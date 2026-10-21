@@ -2,6 +2,9 @@ extends Node3D
 ## PoggyCraft — titik masuk: bangun lingkungan, dunia, pemain, dan HUD.
 
 const Pemain := preload("res://pemain.gd")
+const KontrolSentuh := preload("res://kontrol_sentuh.gd")
+
+var kontrol_sentuh: Control
 
 var dunia: Dunia
 var pemain: CharacterBody3D
@@ -28,6 +31,20 @@ func _ready() -> void:
 	pemain.pilihan_berubah.connect(_perbarui_hotbar)
 	_bangun_hud()
 	_perbarui_hotbar(pemain.pilihan())
+	# Kontrol sentuh: otomatis tampil di perangkat sentuh; tombol 🎮 untuk paksa tampil/sembunyi
+	var lapis_sentuh := CanvasLayer.new()
+	lapis_sentuh.layer = 2
+	add_child(lapis_sentuh)
+	kontrol_sentuh = KontrolSentuh.new()
+	kontrol_sentuh.bangun(pemain)
+	lapis_sentuh.add_child(kontrol_sentuh)
+	kontrol_sentuh.visible = DisplayServer.is_touchscreen_available()
+	var btn_sentuh := Button.new()
+	btn_sentuh.text = "🎮 Sentuh"
+	btn_sentuh.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	btn_sentuh.position = Vector2(-118, 10)
+	btn_sentuh.pressed.connect(func() -> void: kontrol_sentuh.visible = not kontrol_sentuh.visible)
+	lapis_sentuh.add_child(btn_sentuh)
 
 func _bangun_lingkungan() -> void:
 	var we := WorldEnvironment.new()
@@ -101,6 +118,10 @@ func _bangun_hud() -> void:
 		var angka := _label(str(i + 1), 13)
 		angka.position = Vector2(4, 2)
 		panel.add_child(angka)
+		var idx := i
+		panel.gui_input.connect(func(event: InputEvent) -> void:
+			if (event is InputEventScreenTouch and event.pressed) or (event is InputEventMouseButton and event.pressed):
+				pemain.ganti_pilihan(idx))
 		bar.add_child(panel)
 		slot_hotbar.append(panel)
 
