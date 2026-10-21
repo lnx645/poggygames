@@ -62,7 +62,12 @@
 <main class="grid" id="grid"></main>
 <p class="kosong" id="kosong">Yah, game-nya gak ketemu 😅 Coba kata kunci lain.</p>
 
-<footer>PoggyGames — semua game di situs ini karya orisinal & gratis dimainkan. Skor tertinggi tersimpan di perangkatmu.</footer>
+<footer>
+  PoggyGames — game orisinal PoggyGames & karya open source terpilih, gratis dimainkan.<br/>
+  Kredit game komunitas: <a href="https://github.com/Hernandez712/KnightPlatformer" style="color:#ffd93d">Knight Platformer</a>,
+  <a href="https://github.com/Hernandez712/SpaceInvaders-Godot" style="color:#ffd93d">Space Invaders</a>, dan
+  <a href="https://github.com/Hernandez712/FlappyBird" style="color:#ffd93d">Flappy Bird</a> oleh Hernandez712 (GitHub, lisensi Unlicense).
+</footer>
 
 <div id="pemutar" role="dialog" aria-label="Pemutar game">
   <div class="bar">
@@ -82,6 +87,9 @@ const GAMES = [
   { id:'flappy',  judul:'Flappy Terbang',kat:'Arcade',  emoji:'🐤', warna:'#0c4a6e', desk:'Ketuk untuk terbang melewati pipa. Satu kesalahan = mulai lagi!' },
   { id:'breakout',judul:'Breakout',      kat:'Arcade',  emoji:'🧱', warna:'#581c87', desk:'Pantulkan bola, hancurkan semua bata. Klasik sepanjang masa.' },
   { id:'memori',  judul:'Memori Kartu',  kat:'Puzzle',  emoji:'🃏', warna:'#7f1d1d', desk:'Balik kartu & temukan semua pasangannya dengan langkah sesedikit mungkin.' },
+  { id:'knight-platformer', judul:'Knight Platformer', kat:'Platformer', emoji:'⚔️', warna:'#7c3aed', desk:'Platformer pixel-art: ksatria kecil melompati rintangan & mengumpulkan koin.', oleh:'Hernandez712', repo:'https://github.com/Hernandez712/KnightPlatformer', lisensi:'Unlicense' },
+  { id:'space-invaders', judul:'Space Invaders', kat:'Arcade', emoji:'👾', warna:'#312e81', desk:'Klasik Space Invaders: tembak gelombang alien & cetak skor tertinggi!', oleh:'Hernandez712', repo:'https://github.com/Hernandez712/SpaceInvaders-Godot', lisensi:'Unlicense' },
+  { id:'flappy-bird', judul:'Flappy Bird (Godot)', kat:'Arcade', emoji:'🐦', warna:'#0e7490', desk:'Flappy Bird versi Godot — ketuk/klik untuk terbang melewati pipa.', oleh:'Hernandez712', repo:'https://github.com/Hernandez712/FlappyBird', lisensi:'Unlicense' },
 ];
 const KATEGORI = ['Semua', ...new Set(GAMES.map(g => g.kat))];
 let katAktif = 'Semua', kataCari = '';
@@ -111,7 +119,7 @@ function gambar(){
     const el = document.createElement('article');
     el.className = 'game';
     el.innerHTML = `<div class="sampul" style="background:${g.warna}">${g.emoji}</div>
-      <div class="isi"><h3>${g.judul}</h3><p>${g.desk}</p><span class="kat">${g.kat}</span></div>`;
+      <div class="isi"><h3>${g.judul}</h3><p>${g.desk}</p><span class="kat">${g.kat}</span>${g.oleh ? `<span class="kat" style="color:#a7abdf"> • 🌐 karya ${g.oleh}</span>` : ''}</div>`;
     el.onclick = () => main(g);
     grid.appendChild(el);
   });

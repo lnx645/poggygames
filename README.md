@@ -13,6 +13,9 @@ Portal game web gratis ala Poki — main langsung di browser, tanpa instal.
 Klik layar untuk mengunci mouse • WASD jalan • Spasi lompat • Shift lari •
 F terbang • Klik kiri hancurkan • Klik kanan pasang • 1–7/rol pilih balok • Esc lepas kursor.
 
+## Kredit Game Komunitas
+Tiga game open source dari GitHub (lisensi Unlicense — bebas dipakai ## Deploy disebarluaskan) oleh **Hernandez712**: [Knight Platformer](https://github.com/Hernandez712/KnightPlatformer), [Space Invaders](https://github.com/Hernandez712/SpaceInvaders-Godot), [Flappy Bird](https://github.com/Hernandez712/FlappyBird). Diekspor ulang ke Web dengan Godot oleh PoggyGames.
+
 ## Deploy
 Situs statis — impor repo ini ke Vercel (atau host statis apa pun). `vercel.json`
 sudah mengatur header cross-origin untuk game Godot.
