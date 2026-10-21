@@ -126,11 +126,19 @@ function main(g){
   bingkai.src = `games/${g.id}/`;
   pemutar.classList.add('buka');
   document.body.style.overflow = 'hidden';
+  // Di HP: PoggyCraft paling enak landscape — masuk fullscreen & kunci putaran.
+  if (g.id === 'poggycraft' && matchMedia('(pointer: coarse)').matches){
+    const janji = pemutar.requestFullscreen && pemutar.requestFullscreen();
+    if (janji && janji.then) janji.then(() => {
+      if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {});
+    }).catch(() => {});
+  }
 }
 document.getElementById('btnKembali').onclick = () => {
   pemutar.classList.remove('buka');
   bingkai.src = 'about:blank';
   document.body.style.overflow = '';
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
 };
 document.getElementById('btnLayarPenuh').onclick = () => {
   if (pemutar.requestFullscreen) pemutar.requestFullscreen();
