@@ -75,6 +75,7 @@
 
 <script>
 const GAMES = [
+  { id:'poggyclimb', judul:'PoggyClimb — Mendaki Gunung', kat:'3D', emoji:'🏔️', warna:'#0369a1', desk:'Game mendaki gunung ala Roblox: lewati rintangan, lava, tangga & platform bergerak, simpan checkpoint, sampai ke puncak!' },
   { id:'poggycraft', judul:'PoggyCraft 3D', kat:'3D', emoji:'⛏️', warna:'#3f6212', desk:'Game 3D ala Minecraft: jelajahi dunia balok, hancurkan & bangun sesukamu! Bisa dimainkan di HP (kontrol sentuh) maupun PC.' },
   { id:'ular',    judul:'Ular Klasik',   kat:'Arcade',  emoji:'🐍', warna:'#14532d', desk:'Game ular legendaris: makan apel, makin panjang, jangan nabrak!' },
   { id:'2048',    judul:'2048',          kat:'Puzzle',  emoji:'🔢', warna:'#7c2d12', desk:'Geser & gabungkan ubin sampai dapat angka 2048. Gampang dipelajari, susah ditinggal.' },
@@ -127,7 +128,7 @@ function main(g){
   pemutar.classList.add('buka');
   document.body.style.overflow = 'hidden';
   // Di HP: PoggyCraft paling enak landscape — masuk fullscreen & kunci putaran.
-  if (g.id === 'poggycraft' && matchMedia('(pointer: coarse)').matches){
+  if ((g.id === 'poggycraft' || g.id === 'poggyclimb') && matchMedia('(pointer: coarse)').matches){
     const janji = pemutar.requestFullscreen && pemutar.requestFullscreen();
     if (janji && janji.then) janji.then(() => {
       if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {});

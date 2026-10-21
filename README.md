@@ -3,6 +3,7 @@
 Portal game web gratis ala Poki — main langsung di browser, tanpa instal.
 
 ## Isi
+- **PoggyClimb — Mendaki Gunung** (Godot 4.3) — obby ala Roblox: avatar kotak mendaki gunung, 4 checkpoint, lava, tangga panjat, platform bergerak, zona salju, puncak berbendera + timer. Sumber di `godot-climb/`.
 - **PoggyCraft 3D** (game utama) — game voxel 3D ala Minecraft dibuat dengan **Godot 4.3**:
   dunia balok prosedural 64×64, pohon & pantai, mode first-person, hancurkan/pasang
   balok, 7 jenis balok di hotbar, mode terbang. Sumber Godot ada di folder `godot/`.
