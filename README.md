@@ -14,7 +14,11 @@ Klik layar untuk mengunci mouse • WASD jalan • Spasi lompat • Shift lari �
 F terbang • Klik kiri hancurkan • Klik kanan pasang • 1–7/rol pilih balok • Esc lepas kursor.
 
 ## Kredit Game Komunitas
-Tiga game open source dari GitHub (lisensi Unlicense — bebas dipakai ## Deploy disebarluaskan) oleh **Hernandez712**: [Knight Platformer](https://github.com/Hernandez712/KnightPlatformer), [Space Invaders](https://github.com/Hernandez712/SpaceInvaders-Godot), [Flappy Bird](https://github.com/Hernandez712/FlappyBird). Diekspor ulang ke Web dengan Godot oleh PoggyGames.
+Tiga game open source dari GitHub (lisensi Unlicense — bebas dipakai Game 3D komunitas lainnya: **Keep Going: Trick Box** oleh [MajdLHB](https://github.com/MajdLHB/Keep-Going-Trick-Box--Godot-Game-Project) (MIT), **Coffee Shop** oleh [JustKesha](https://github.com/JustKesha/coffee-shop-game) (MIT), **Crane Simulator (Unstable)** oleh [Eptwalabha](https://github.com/Eptwalabha/ld49) (MIT).
+
+## Deploy disebarluaskan) oleh **Hernandez712**: [Knight Platformer](https://github.com/Hernandez712/KnightPlatformer), [Space Invaders](https://github.com/Hernandez712/SpaceInvaders-Godot), [Flappy Bird](https://github.com/Hernandez712/FlappyBird). Diekspor ulang ke Web dengan Godot oleh PoggyGames.
+
+Game 3D komunitas lainnya: **Keep Going: Trick Box** oleh [MajdLHB](https://github.com/MajdLHB/Keep-Going-Trick-Box--Godot-Game-Project) (MIT), **Coffee Shop** oleh [JustKesha](https://github.com/JustKesha/coffee-shop-game) (MIT), **Crane Simulator (Unstable)** oleh [Eptwalabha](https://github.com/Eptwalabha/ld49) (MIT).
 
 ## Deploy
 Situs statis — impor repo ini ke Vercel (atau host statis apa pun). `vercel.json`
