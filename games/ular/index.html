@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<link rel="icon" href="data:," />
+<title>Ular Klasik — PoggyGames</title>
+<style>
+  body{margin:0; background:#052e16; color:#ecfdf5; font-family:system-ui,sans-serif; display:flex; flex-direction:column; align-items:center; padding:14px; user-select:none}
+  h1{font-size:20px; margin:2px 0 8px}
+  .skor{display:flex; gap:22px; font-weight:700; margin-bottom:10px}
+  .skor b{color:#4ade80}
+  canvas{background:#052e16; border:3px solid #166534; border-radius:10px; max-width:92vw; touch-action:none}
+  .pesan{min-height:22px; margin:10px 0; color:#fbbf24; font-weight:700; text-align:center}
+  button{background:#16a34a; color:#fff; border:none; font-weight:800; padding:10px 22px; border-radius:10px; cursor:pointer; font-size:15px}
+  .dpad{display:grid; grid-template-columns:repeat(3,56px); gap:6px; margin-top:12px}
+  .dpad button{padding:12px 0; font-size:18px; background:#14532d}
+  .dpad .tengah{visibility:hidden}
+  p.petunjuk{color:#86efac; font-size:13px; text-align:center}
+</style>
+</head>
+<body>
+<h1>🐍 Ular Klasik</h1>
+<div class="skor"><span>Skor: <b id="skor">0</b></span><span>Terbaik: <b id="terbaik">0</b></span></div>
+<canvas id="papan" width="400" height="400"></canvas>
+<div class="pesan" id="pesan">Tekan tombol atau arah untuk mulai!</div>
+<button id="mulai">▶ Mulai / Ulang</button>
+<div class="dpad">
+  <span></span><button data-arah="atas">▲</button><span></span>
+  <button data-arah="kiri">◀</button><span class="tengah"></span><button data-arah="kanan">▶</button>
+  <span></span><button data-arah="bawah">▼</button><span></span>
+</div>
+<p class="petunjuk">Kontrol: tombol panah / WASD / usap layar / D-pad</p>
+<script>
+const SEL = 20, KOTAK = 20;
+const cv = document.getElementById('papan'), ctx = cv.getContext('2d');
+const elSkor = document.getElementById('skor'), elTerbaik = document.getElementById('terbaik');
+const elPesan = document.getElementById('pesan');
+let ular, arah, giliran, apel, skor, jalan, jeda;
+let terbaik = parseInt(localStorage.getItem('poggy_ular_terbaik') || '0', 10);
+elTerbaik.textContent = terbaik;
+
+function posisiAcak(){ return { x: Math.floor(Math.random()*KOTAK), y: Math.floor(Math.random()*KOTAK) }; }
+function letakApel(){
+  do { apel = posisiAcak(); } while (ular.some(u => u.x === apel.x && u.y === apel.y));
+}
+function aturUlang(){
+  ular = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+  arah = {x:1,y:0}; giliran = arah; skor = 0; jeda = 140;
+  letakApel(); elSkor.textContent = '0';
+  elPesan.textContent = 'Makan apelnya! 🍎';
+}
+function gambar(){
+  ctx.fillStyle = '#052e16'; ctx.fillRect(0,0,400,400);
+  ctx.fillStyle = '#ef4444';
+  ctx.beginPath(); ctx.arc(apel.x*SEL+SEL/2, apel.y*SEL+SEL/2, SEL/2-2, 0, 7); ctx.fill();
+  ular.forEach((u,i) => {
+    ctx.fillStyle = i === 0 ? '#4ade80' : '#22c55e';
+    ctx.fillRect(u.x*SEL+1, u.y*SEL+1, SEL-2, SEL-2);
+  });
+}
+function langkah(){
+  arah = giliran;
+  const kepala = { x: ular[0].x + arah.x, y: ular[0].y + arah.y };
+  const nabrak = kepala.x < 0 || kepala.y < 0 || kepala.x >= KOTAK || kepala.y >= KOTAK ||
+    ular.some(u => u.x === kepala.x && u.y === kepala.y);
+  if (nabrak){
+    jalan = false;
+    if (skor > terbaik){ terbaik = skor; localStorage.setItem('poggy_ular_terbaik', String(terbaik)); elTerbaik.textContent = terbaik; }
+    elPesan.textContent = `💥 Nabrak! Skor akhir ${skor}. Tekan Mulai/Ulang.`;
+    return;
+  }
+  ular.unshift(kepala);
+  if (kepala.x === apel.x && kepala.y === apel.y){
+    skor += 10; elSkor.textContent = skor;
+    letakApel();
+    if (jeda > 60){ jeda -= 4; clearInterval(jalan); jalan = setInterval(langkah, jeda); }
+  } else ular.pop();
+  gambar();
+}
+function mulai(){
+  if (jalan) clearInterval(jalan);
+  aturUlang(); gambar();
+  jalan = setInterval(langkah, jeda);
+}
+const ARAH = {
+  atas:{x:0,y:-1}, bawah:{x:0,y:1}, kiri:{x:-1,y:0}, kanan:{x:1,y:0},
+  ArrowUp:{x:0,y:-1}, ArrowDown:{x:0,y:1}, ArrowLeft:{x:-1,y:0}, ArrowRight:{x:1,y:0},
+  w:{x:0,y:-1}, s:{x:0,y:1}, a:{x:-1,y:0}, d:{x:1,y:0},
+};
+function belok(k){
+  const a = ARAH[k];
+  if (!a) return;
+  if (a.x === -arah.x && a.y === -arah.y) return; // gak boleh putar balik
+  giliran = a;
+  if (!jalan) mulai();
+}
+addEventListener('keydown', e => { if (ARAH[e.key]) { e.preventDefault(); belok(e.key); } });
+document.querySelectorAll('.dpad button').forEach(b => b.addEventListener('click', () => belok(b.dataset.arah)));
+let sentuh = null;
+cv.addEventListener('touchstart', e => { sentuh = e.touches[0]; }, { passive:true });
+cv.addEventListener('touchmove', e => {
+  if (!sentuh) return;
+  const t = e.touches[0], dx = t.clientX - sentuh.clientX, dy = t.clientY - sentuh.clientY;
+  if (Math.abs(dx) < 24 && Math.abs(dy) < 24) return;
+  belok(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'kanan' : 'kiri') : (dy > 0 ? 'bawah' : 'atas'));
+  sentuh = t;
+}, { passive:true });
+document.getElementById('mulai').onclick = mulai;
+aturUlang(); gambar();
+</script>
+</body>
+</html>

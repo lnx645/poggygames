@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<link rel="icon" href="data:," />
+<title>Flappy Terbang — PoggyGames</title>
+<style>
+  body{margin:0; background:#082f49; color:#f0f9ff; font-family:system-ui,sans-serif; display:flex; flex-direction:column; align-items:center; padding:14px; user-select:none}
+  h1{font-size:20px; margin:2px 0 8px}
+  .skor{display:flex; gap:22px; font-weight:700; margin-bottom:10px}
+  .skor b{color:#facc15}
+  canvas{background:linear-gradient(#38bdf8,#bae6fd 70%,#fde68a 70.2%); border:3px solid #0369a1; border-radius:10px; max-width:92vw; touch-action:none}
+  .pesan{min-height:22px; margin:10px 0; color:#fde047; font-weight:700}
+  button{background:#0284c7; color:#fff; border:none; font-weight:800; padding:10px 22px; border-radius:10px; cursor:pointer; font-size:15px}
+  p{color:#7dd3fc; font-size:13px}
+</style>
+</head>
+<body>
+<h1>🐤 Flappy Terbang</h1>
+<div class="skor"><span>Skor: <b id="skor">0</b></span><span>Terbaik: <b id="terbaik">0</b></span></div>
+<canvas id="papan" width="400" height="480"></canvas>
+<div class="pesan" id="pesan">Klik / Spasi / ketuk untuk terbang!</div>
+<button id="mulai">▶ Mulai / Ulang</button>
+<p>Kontrol: klik, ketuk, atau Spasi</p>
+<script>
+const cv = document.getElementById('papan'), ctx = cv.getContext('2d');
+const elSkor = document.getElementById('skor'), elTerbaik = document.getElementById('terbaik'), elPesan = document.getElementById('pesan');
+let terbaik = parseInt(localStorage.getItem('poggy_flappy_terbaik') || '0', 10);
+elTerbaik.textContent = terbaik;
+let burung, pipa, skor, jalan, bingkai, kecepatan;
+function aturUlang(){
+  burung = { x: 80, y: 220, v: 0 };
+  pipa = []; skor = 0; bingkai = 0; kecepatan = 2.4;
+  elSkor.textContent = '0';
+}
+function gambar(){
+  ctx.clearRect(0, 0, 400, 480);
+  // pipa
+  ctx.fillStyle = '#16a34a';
+  pipa.forEach(p => {
+    ctx.fillRect(p.x, 0, 64, p.atas);
+    ctx.fillRect(p.x, p.atas + p.celah, 64, 480 - p.atas - p.celah);
+    ctx.fillStyle = '#15803d';
+    ctx.fillRect(p.x - 3, p.atas - 18, 70, 18);
+    ctx.fillRect(p.x - 3, p.atas + p.celah, 70, 18);
+    ctx.fillStyle = '#16a34a';
+  });
+  // burung
+  ctx.font = '34px serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('🐤', burung.x, burung.y + 10);
+}
+function langkah(){
+  burung.v += 0.45; burung.y += burung.v;
+  bingkai++;
+  if (bingkai % 95 === 0){
+    const atas = 60 + Math.random() * 220;
+    pipa.push({ x: 400, atas, celah: 128, lewat: false });
+  }
+  pipa.forEach(p => { p.x -= kecepatan; });
+  pipa = pipa.filter(p => p.x > -70);
+  pipa.forEach(p => {
+    if (!p.lewat && p.x + 64 < burung.x){
+      p.lewat = true; skor++; elSkor.textContent = skor;
+      if (skor % 10 === 0) kecepatan += 0.3;
+    }
+    const kenaX = burung.x + 14 > p.x && burung.x - 14 < p.x + 64;
+    const kenaY = burung.y - 12 < p.atas || burung.y + 12 > p.atas + p.celah;
+    if (kenaX && kenaY) mati();
+  });
+  if (burung.y > 466 || burung.y < 0) mati();
+  gambar();
+  if (jalan) requestAnimationFrame(langkah);
+}
+function mati(){
+  if (!jalan) return;
+  jalan = false;
+  if (skor > terbaik){ terbaik = skor; localStorage.setItem('poggy_flappy_terbaik', String(terbaik)); elTerbaik.textContent = terbaik; }
+  elPesan.textContent = `💥 Nabrak! Skor akhir ${skor}.`;
+  gambar();
+}
+function terbang(){
+  if (!jalan){ mulai(); return; }
+  burung.v = -7.6;
+}
+function mulai(){
+  aturUlang(); jalan = true;
+  elPesan.textContent = 'Terbang… jangan nabrak pipa! 🟩';
+  requestAnimationFrame(langkah);
+}
+addEventListener('keydown', e => { if (e.code === 'Space'){ e.preventDefault(); terbang(); } });
+cv.addEventListener('pointerdown', terbang);
+document.getElementById('mulai').onclick = mulai;
+aturUlang(); gambar();
+</script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" href="data:," />
+<title>Memori Kartu — PoggyGames</title>
+<style>
+  body{margin:0; background:#450a0a; color:#fef2f2; font-family:system-ui,sans-serif; display:flex; flex-direction:column; align-items:center; padding:16px; user-select:none}
+  h1{font-size:20px; margin:2px 0 8px}
+  .skor{display:flex; gap:22px; font-weight:700; margin-bottom:12px}
+  .skor b{color:#fbbf24}
+  #papan{display:grid; grid-template-columns:repeat(4,74px); gap:10px}
+  .kartu{width:74px; height:96px; border:none; border-radius:12px; font-size:38px; cursor:pointer; background:#7f1d1d; color:transparent; transition:transform .15s, background .15s; box-shadow:0 4px 0 #450a0a}
+  .kartu::before{content:'🂠'; color:#fecaca; font-size:34px}
+  .kartu.buka{background:#fef3c7; color:#111; transform:rotateY(180deg) scale(1.04)}
+  .kartu.buka::before{content:''}
+  .kartu.cocok{background:#bbf7d0; color:#111; cursor:default}
+  .kartu.cocok::before{content:''}
+  .pesan{min-height:24px; margin:12px 0; color:#fde68a; font-weight:700; text-align:center}
+  button.ulang{background:#dc2626; color:#fff; border:none; font-weight:800; padding:10px 22px; border-radius:10px; cursor:pointer; font-size:15px}
+</style>
+</head>
+<body>
+<h1>🃏 Memori Kartu</h1>
+<div class="skor"><span>Langkah: <b id="langkah">0</b></span><span>Pasangan: <b id="pasangan">0</b>/8</span><span>Terbaik: <b id="terbaik">—</b></span></div>
+<div id="papan"></div>
+<div class="pesan" id="pesan">Balik dua kartu & temukan pasangannya!</div>
+<button class="ulang" id="ulang">↻ Acak Ulang</button>
+<script>
+const SIMBOL = ['🦁', '🐼', '🦊', '🐸', '🦄', '🐙', '🦉', '🐳'];
+const papan = document.getElementById('papan');
+const el = id => document.getElementById(id);
+let terbaik = parseInt(localStorage.getItem('poggy_memori_terbaik') || '0', 10);
+if (terbaik) el('terbaik').textContent = terbaik;
+let pertama = null, kunciPapan = false, langkah = 0, pasangan = 0;
+function acak(a){ for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function mulai(){
+  papan.innerHTML = ''; pertama = null; kunciPapan = false; langkah = 0; pasangan = 0;
+  el('langkah').textContent = '0'; el('pasangan').textContent = '0';
+  el('pesan').textContent = 'Balik dua kartu & temukan pasangannya!';
+  acak([...SIMBOL, ...SIMBOL]).forEach(simbol => {
+    const b = document.createElement('button');
+    b.className = 'kartu'; b.dataset.simbol = simbol; b.textContent = simbol;
+    b.setAttribute('aria-label', 'Kartu tertutup');
+    b.onclick = () => balik(b);
+    papan.appendChild(b);
+  });
+}
+function balik(b){
+  if (kunciPapan || b.classList.contains('buka') || b.classList.contains('cocok')) return;
+  b.classList.add('buka');
+  if (!pertama){ pertama = b; return; }
+  langkah++; el('langkah').textContent = langkah;
+  if (pertama.dataset.simbol === b.dataset.simbol){
+    pertama.classList.add('cocok'); b.classList.add('cocok');
+    pertama = null; pasangan++; el('pasangan').textContent = pasangan;
+    if (pasangan === 8){
+      el('pesan').textContent = `🎉 Semua ketemu dalam ${langkah} langkah!`;
+      if (!terbaik || langkah < terbaik){ terbaik = langkah; localStorage.setItem('poggy_memori_terbaik', String(terbaik)); el('terbaik').textContent = terbaik; }
+    }
+  } else {
+    kunciPapan = true;
+    const a = pertama; pertama = null;
+    setTimeout(() => { a.classList.remove('buka'); b.classList.remove('buka'); kunciPapan = false; }, 750);
+  }
+}
+document.getElementById('ulang').onclick = mulai;
+mulai();
+</script>
+</body>
+</html>

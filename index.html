@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PoggyGames — Main Game Gratis Langsung di Browser</title>
+<meta name="description" content="PoggyGames: portal game HTML5 gratis. Main Ular, 2048, Flappy, Breakout, dan Memori Kartu langsung di browser — tanpa instal, tanpa daftar." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕹️</text></svg>" />
+<style>
+  :root{
+    --bg:#0e1030; --bg2:#171a45; --kartu:#1e2160; --teks:#f4f5ff; --redup:#a7abdf;
+    --aksen:#ffd93d; --aksen2:#ff6b9d; --radius:18px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif; background:linear-gradient(180deg,var(--bg),var(--bg2)); color:var(--teks); min-height:100vh}
+  header{display:flex; align-items:center; gap:14px; padding:16px 20px; position:sticky; top:0; background:rgba(14,16,48,.9); backdrop-filter:blur(8px); z-index:5; flex-wrap:wrap}
+  .logo{font-size:30px; font-weight:900; letter-spacing:.5px}
+  .logo span{color:var(--aksen)}
+  .logo small{display:block; font-size:11px; font-weight:600; color:var(--redup); letter-spacing:2px}
+  .cari{flex:1; min-width:180px; max-width:420px; margin-left:auto}
+  .cari input{width:100%; padding:11px 16px; border-radius:999px; border:2px solid #2c3078; background:#14163c; color:var(--teks); font-size:15px; outline:none}
+  .cari input:focus{border-color:var(--aksen)}
+  .hero{padding:34px 20px 8px; text-align:center}
+  .hero h1{font-size:clamp(26px,5vw,44px); font-weight:900}
+  .hero h1 em{font-style:normal; color:var(--aksen2)}
+  .hero p{color:var(--redup); margin-top:8px; font-size:16px}
+  .kategori{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; padding:20px 16px 4px}
+  .chip{padding:8px 18px; border-radius:999px; border:2px solid #2c3078; background:transparent; color:var(--teks); font-weight:700; cursor:pointer; font-size:14px}
+  .chip.aktif{background:var(--aksen); color:#22245c; border-color:var(--aksen)}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:18px; padding:22px 20px 40px; max-width:1200px; margin:0 auto}
+  .game{background:var(--kartu); border-radius:var(--radius); overflow:hidden; cursor:pointer; border:2px solid transparent; transition:transform .15s, border-color .15s}
+  .game:hover{transform:translateY(-4px) scale(1.02); border-color:var(--aksen)}
+  .game .sampul{height:130px; display:flex; align-items:center; justify-content:center; font-size:64px}
+  .game .isi{padding:12px 14px 16px}
+  .game h3{font-size:17px; margin-bottom:4px}
+  .game p{font-size:13px; color:var(--redup); line-height:1.45; min-height:38px}
+  .game .kat{display:inline-block; margin-top:8px; font-size:11px; font-weight:800; letter-spacing:1px; color:var(--aksen); text-transform:uppercase}
+  .kosong{text-align:center; color:var(--redup); padding:30px; display:none}
+  footer{text-align:center; color:var(--redup); font-size:13px; padding:8px 16px 34px}
+  /* Pemutar */
+  #pemutar{position:fixed; inset:0; background:#06071c; display:none; flex-direction:column; z-index:20}
+  #pemutar.buka{display:flex}
+  #pemutar .bar{display:flex; align-items:center; gap:10px; padding:10px 14px; background:#101238}
+  #pemutar .bar b{font-size:17px}
+  #pemutar .bar button{margin-left:auto; background:var(--aksen); border:none; color:#22245c; font-weight:800; padding:9px 16px; border-radius:10px; cursor:pointer}
+  #pemutar .bar button.kembali{background:#2c3078; color:var(--teks)}
+  #pemutar iframe{flex:1; border:none; width:100%; background:#000}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🕹️ Poggy<span>Games</span><small>MAIN LANGSUNG • GRATIS</small></div>
+  <div class="cari"><input id="kotakCari" type="search" placeholder="🔍 Cari game…" aria-label="Cari game" /></div>
+</header>
+
+<section class="hero">
+  <h1>Main game seru, <em>langsung</em> dari browser 🎮</h1>
+  <p>Tanpa instal, tanpa daftar. Pilih game-nya, klik, main!</p>
+</section>
+
+<nav class="kategori" id="kategori"></nav>
+<main class="grid" id="grid"></main>
+<p class="kosong" id="kosong">Yah, game-nya gak ketemu 😅 Coba kata kunci lain.</p>
+
+<footer>PoggyGames — semua game di situs ini karya orisinal & gratis dimainkan. Skor tertinggi tersimpan di perangkatmu.</footer>
+
+<div id="pemutar" role="dialog" aria-label="Pemutar game">
+  <div class="bar">
+    <b id="judulGame"></b>
+    <button type="button" id="btnLayarPenuh">⛶ Layar Penuh</button>
+    <button type="button" class="kembali" id="btnKembali">← Kembali</button>
+  </div>
+  <iframe id="bingkaiGame" title="Game" allow="fullscreen"></iframe>
+</div>
+
+<script>
+const GAMES = [
+  { id:'poggycraft', judul:'PoggyCraft 3D', kat:'3D', emoji:'⛏️', warna:'#3f6212', desk:'Game 3D ala Minecraft: jelajahi dunia balok, hancurkan & bangun sesukamu! (Butuh keyboard + mouse)' },
+  { id:'ular',    judul:'Ular Klasik',   kat:'Arcade',  emoji:'🐍', warna:'#14532d', desk:'Game ular legendaris: makan apel, makin panjang, jangan nabrak!' },
+  { id:'2048',    judul:'2048',          kat:'Puzzle',  emoji:'🔢', warna:'#7c2d12', desk:'Geser & gabungkan ubin sampai dapat angka 2048. Gampang dipelajari, susah ditinggal.' },
+  { id:'flappy',  judul:'Flappy Terbang',kat:'Arcade',  emoji:'🐤', warna:'#0c4a6e', desk:'Ketuk untuk terbang melewati pipa. Satu kesalahan = mulai lagi!' },
+  { id:'breakout',judul:'Breakout',      kat:'Arcade',  emoji:'🧱', warna:'#581c87', desk:'Pantulkan bola, hancurkan semua bata. Klasik sepanjang masa.' },
+  { id:'memori',  judul:'Memori Kartu',  kat:'Puzzle',  emoji:'🃏', warna:'#7f1d1d', desk:'Balik kartu & temukan semua pasangannya dengan langkah sesedikit mungkin.' },
+];
+const KATEGORI = ['Semua', ...new Set(GAMES.map(g => g.kat))];
+let katAktif = 'Semua', kataCari = '';
+
+const grid = document.getElementById('grid');
+const kosong = document.getElementById('kosong');
+const wadahKat = document.getElementById('kategori');
+
+KATEGORI.forEach(k => {
+  const b = document.createElement('button');
+  b.className = 'chip' + (k === 'Semua' ? ' aktif' : '');
+  b.textContent = k;
+  b.onclick = () => {
+    katAktif = k;
+    wadahKat.querySelectorAll('.chip').forEach(c => c.classList.toggle('aktif', c.textContent === k));
+    gambar();
+  };
+  wadahKat.appendChild(b);
+});
+
+function gambar(){
+  const daftar = GAMES.filter(g =>
+    (katAktif === 'Semua' || g.kat === katAktif) &&
+    g.judul.toLowerCase().includes(kataCari));
+  grid.innerHTML = '';
+  daftar.forEach(g => {
+    const el = document.createElement('article');
+    el.className = 'game';
+    el.innerHTML = `<div class="sampul" style="background:${g.warna}">${g.emoji}</div>
+      <div class="isi"><h3>${g.judul}</h3><p>${g.desk}</p><span class="kat">${g.kat}</span></div>`;
+    el.onclick = () => main(g);
+    grid.appendChild(el);
+  });
+  kosong.style.display = daftar.length ? 'none' : 'block';
+}
+
+document.getElementById('kotakCari').addEventListener('input', e => { kataCari = e.target.value.toLowerCase(); gambar(); });
+
+const pemutar = document.getElementById('pemutar');
+const bingkai = document.getElementById('bingkaiGame');
+function main(g){
+  document.getElementById('judulGame').textContent = `${g.emoji} ${g.judul}`;
+  bingkai.src = `games/${g.id}/`;
+  pemutar.classList.add('buka');
+  document.body.style.overflow = 'hidden';
+}
+document.getElementById('btnKembali').onclick = () => {
+  pemutar.classList.remove('buka');
+  bingkai.src = 'about:blank';
+  document.body.style.overflow = '';
+};
+document.getElementById('btnLayarPenuh').onclick = () => {
+  if (pemutar.requestFullscreen) pemutar.requestFullscreen();
+};
+gambar();
+</script>
+</body>
+</html>
