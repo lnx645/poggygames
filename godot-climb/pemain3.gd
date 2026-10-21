@@ -16,7 +16,7 @@ var sentuh_lompat := false
 var _putar: Node3D
 var _kamera: Camera3D
 var _yaw := 0.0
-var _pitch := 0.38
+var _pitch := 0.16
 var _model: Node3D
 var _kaki_kiri: Node3D
 var _kaki_kanan: Node3D
